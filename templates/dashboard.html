@@ -72,7 +72,8 @@
             padding: 2rem 1.5rem 3rem;
         }
 
-        /* Legend to build blocks from the same color blocks as the cards */
+        /* Legend -- built from the same color blocks as the cards, so
+           the meaning of each color is taught once, clearly, up front */
         .legend {
             background: var(--card-bg);
             border: 2px solid #D9D3C4;
@@ -156,7 +157,9 @@
             box-shadow: 0 2px 6px rgba(30, 37, 48, 0.1);
         }
 
-        /* rating banner */
+        /* The rating banner -- large, solid color, high-contrast text.
+           This is the main fix: color is now a big unmissable block,
+           not a thin accent line. */
         .banner {
             padding: 0.6rem 1.25rem;
             font-family: 'Inter', sans-serif;
@@ -166,6 +169,9 @@
             letter-spacing: 0.04em;
         }
 
+        /* Text color per banner, chosen for contrast, not consistency --
+           white reads better on the dark colors, dark ink reads better
+           on the pale yellow */
         .banner.green, .banner.orange, .banner.red, .banner.deepred, .banner.blue, .banner.gray { color: #FFFFFF; }
         .banner.yellow { color: var(--ink); }
 
@@ -208,47 +214,57 @@
 
     <div class="container">
 
-        <div class="legend">
-            <div class="legend-title">What the colors mean</div>
-            <div class="legend-items">
-                <span class="legend-chip" style="background:#E8F3EC;"><span class="swatch green"></span> Good to go</span>
-                <span class="legend-chip" style="background:#FDF3D9;"><span class="swatch yellow"></span> Use caution</span>
-                <span class="legend-chip" style="background:#FBE8E5;"><span class="swatch red"></span> High risk</span>
-                <span class="legend-chip" style="background:#EBEBEC;"><span class="swatch gray"></span> Reference only / not yet rated</span>
+        {% if data is none %}
+            <div class="legend" style="text-align:center; padding: 2.5rem 1.5rem;">
+                <div class="legend-title" style="margin-bottom:0.75rem;">Conditions temporarily unavailable</div>
+                <p style="margin:0; color:#4A5364;">
+                    We couldn't reach the weather service just now. This is usually temporary --
+                    please try refreshing in a few minutes.
+                </p>
             </div>
-        </div>
-
-        {% for group_name, keys in groups.items() %}
-            <div class="group-label">{{ group_name }}</div>
-            {% if group_name == "Additional Reference" %}
-                <div class="legend legend-secondary">
-                    <div class="legend-title">This section uses a broader reference scale</div>
-                    <div class="legend-items">
-                        <span class="legend-chip" style="background:#E8F3EC;"><span class="swatch green"></span> Low</span>
-                        <span class="legend-chip" style="background:#FDF3D9;"><span class="swatch yellow"></span> Moderate</span>
-                        <span class="legend-chip" style="background:#FCE8DC;"><span class="swatch orange"></span> High</span>
-                        <span class="legend-chip" style="background:#FBE8E5;"><span class="swatch red"></span> Very High</span>
-                        <span class="legend-chip" style="background:#F0DADA;"><span class="swatch deepred"></span> Extreme</span>
-                        <span class="legend-chip" style="background:#DCEAF0;"><span class="swatch blue"></span> Dry (humidity only)</span>
-                    </div>
+        {% else %}
+            <div class="legend">
+                <div class="legend-title">What the colors mean</div>
+                <div class="legend-items">
+                    <span class="legend-chip" style="background:#E8F3EC;"><span class="swatch green"></span> Good to go</span>
+                    <span class="legend-chip" style="background:#FDF3D9;"><span class="swatch yellow"></span> Use caution</span>
+                    <span class="legend-chip" style="background:#FBE8E5;"><span class="swatch red"></span> High risk</span>
+                    <span class="legend-chip" style="background:#EBEBEC;"><span class="swatch gray"></span> Reference only / not yet rated</span>
                 </div>
-            {% endif %}
-            <div class="card-grid">
-                {% for key in keys %}
-                    {% set info = data[key] %}
-                    {% set rating_class = color_rules.get(key, {}).get(info.rating, "gray") %}
-                    <div class="card">
-                        <div class="banner {{ rating_class }}">
-                            {{ info.rating if info.rating is not none else "Not yet rated" }}
-                        </div>
-                        <div class="card-body">
-                            <div class="card-label">{{ display_names.get(key, key) }}</div>
-                            <div class="card-value">{{ info.value }}</div>
+            </div>
+
+            {% for group_name, keys in groups.items() %}
+                <div class="group-label">{{ group_name }}</div>
+                {% if group_name == "Additional Reference" %}
+                    <div class="legend legend-secondary">
+                        <div class="legend-title">This section uses a broader reference scale</div>
+                        <div class="legend-items">
+                            <span class="legend-chip" style="background:#E8F3EC;"><span class="swatch green"></span> Low</span>
+                            <span class="legend-chip" style="background:#FDF3D9;"><span class="swatch yellow"></span> Moderate</span>
+                            <span class="legend-chip" style="background:#FCE8DC;"><span class="swatch orange"></span> High</span>
+                            <span class="legend-chip" style="background:#FBE8E5;"><span class="swatch red"></span> Very High</span>
+                            <span class="legend-chip" style="background:#F0DADA;"><span class="swatch deepred"></span> Extreme</span>
+                            <span class="legend-chip" style="background:#DCEAF0;"><span class="swatch blue"></span> Dry (humidity only)</span>
                         </div>
                     </div>
-                {% endfor %}
-            </div>
-        {% endfor %}
+                {% endif %}
+                <div class="card-grid">
+                    {% for key in keys %}
+                        {% set info = data[key] %}
+                        {% set rating_class = color_rules.get(key, {}).get(info.rating, "gray") %}
+                        <div class="card">
+                            <div class="banner {{ rating_class }}">
+                                {{ info.rating if info.rating is not none else "Not yet rated" }}
+                            </div>
+                            <div class="card-body">
+                                <div class="card-label">{{ display_names.get(key, key) }}</div>
+                                <div class="card-value">{{ info.value }}</div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        {% endif %}
 
     </div>
 </body>

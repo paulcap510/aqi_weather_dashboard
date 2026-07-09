@@ -1,4 +1,5 @@
 from datetime import timedelta, datetime
+import requests
 from fetch_weather import get_current_weather, get_current_air_quality
 from thresholds import (
     rate_aqi,
@@ -57,8 +58,11 @@ def get_dashboard_data_cached():
     )
 
     if cache_is_empty or cache_is_stale:
-        _cache["data"] = get_dashboard_data()
-        _cache["fetched_at"] = now
+        try:
+            _cache["data"] = get_dashboard_data()
+            _cache["fetched_at"] = now
+        except requests.exceptions.RequestException:
+            pass
 
     return _cache["data"]
 
