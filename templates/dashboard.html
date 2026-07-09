@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Sky Check — Brooklyn, NY</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ink: #000000;
+            --header-bg: #1E2530;
+            --cream: #F7F5F0;
+            --green-bg: #2E7D4F;
+            --yellow-bg: #F2B705;
+            --orange-bg: #C2410C;
+            --red-bg: #C0392B;
+            --deepred-bg: #7F1D1D;
+            --blue-bg: #2C6E8E;
+            --gray-bg: #6B7280;
+            --card-bg: #FFFFFF;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            background: var(--cream);
+            font-family: 'Inter', sans-serif;
+            color: var(--ink);
+            font-size: 18px;
+        }
+
+        header {
+            background: var(--header-bg);
+            color: var(--cream);
+            padding: 2rem 1.5rem;
+        }
+
+        header .inner {
+            max-width: 960px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        h1 {
+            font-family: 'Fraunces', serif;
+            font-weight: 700;
+            font-size: 2.4rem;
+            margin: 0 0 0.3rem;
+        }
+
+        .subtitle {
+            font-size: 1.15rem;
+            opacity: 0.9;
+            margin: 0;
+        }
+
+        .timestamp {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 1rem;
+            opacity: 0.85;
+        }
+
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem 3rem;
+        }
+
+        /* Legend to build blocks from the same color blocks as the cards */
+        .legend {
+            background: var(--card-bg);
+            border: 2px solid #D9D3C4;
+            border-radius: 12px;
+            padding: 1.1rem 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .legend-title {
+            font-weight: 700;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--ink);
+            margin-bottom: 0.75rem;
+        }
+
+        .legend-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+        }
+
+        .legend-chip {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.4rem 0.8rem;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        .legend-chip .swatch {
+            width: 18px;
+            height: 18px;
+            border-radius: 4px;
+            flex-shrink: 0;
+        }
+
+        .swatch.green, .banner.green { background: var(--green-bg); }
+        .swatch.yellow, .banner.yellow { background: var(--yellow-bg); }
+        .swatch.orange, .banner.orange { background: var(--orange-bg); }
+        .swatch.red, .banner.red { background: var(--red-bg); }
+        .swatch.deepred, .banner.deepred { background: var(--deepred-bg); }
+        .swatch.blue, .banner.blue { background: var(--blue-bg); }
+        .swatch.gray, .banner.gray { background: var(--gray-bg); }
+
+        .legend-secondary {
+            margin: -0.5rem 0 1.5rem;
+        }
+
+        .group-label {
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--ink);
+            margin: 2.25rem 0 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid #D9D3C4;
+        }
+
+        .group-note {
+            font-size: 0.95rem;
+            color: #4A5364;
+            margin: -0.5rem 0 1rem;
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 6px rgba(30, 37, 48, 0.1);
+        }
+
+        /* rating banner */
+        .banner {
+            padding: 0.6rem 1.25rem;
+            font-family: 'Inter', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .banner.green, .banner.orange, .banner.red, .banner.deepred, .banner.blue, .banner.gray { color: #FFFFFF; }
+        .banner.yellow { color: var(--ink); }
+
+        .card-body {
+            padding: 1.25rem 1.25rem 1.4rem;
+        }
+
+        .card-label {
+            font-family: 'Fraunces', serif;
+            font-size: 1.25rem;
+            font-weight: 400;
+            color: #3A4252;
+            margin-bottom: 0.4rem;
+        }
+
+        .card-value {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 3rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        @media (max-width: 480px) {
+            body { font-size: 17px; }
+            h1 { font-size: 1.9rem; }
+            .card-value { font-size: 2.6rem; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="inner">
+            <div>
+                <h1>{{ greeting }}</h1>
+                <p class="subtitle">Outdoor conditions for Brooklyn, NY</p>
+            </div>
+            <div class="timestamp">Last updated {{ last_updated }}</div>
+        </div>
+    </header>
+
+    <div class="container">
+
+        <div class="legend">
+            <div class="legend-title">What the colors mean</div>
+            <div class="legend-items">
+                <span class="legend-chip" style="background:#E8F3EC;"><span class="swatch green"></span> Good to go</span>
+                <span class="legend-chip" style="background:#FDF3D9;"><span class="swatch yellow"></span> Use caution</span>
+                <span class="legend-chip" style="background:#FBE8E5;"><span class="swatch red"></span> High risk</span>
+                <span class="legend-chip" style="background:#EBEBEC;"><span class="swatch gray"></span> Reference only / not yet rated</span>
+            </div>
+        </div>
+
+        {% for group_name, keys in groups.items() %}
+            <div class="group-label">{{ group_name }}</div>
+            {% if group_name == "Additional Reference" %}
+                <div class="legend legend-secondary">
+                    <div class="legend-title">This section uses a broader reference scale</div>
+                    <div class="legend-items">
+                        <span class="legend-chip" style="background:#E8F3EC;"><span class="swatch green"></span> Low</span>
+                        <span class="legend-chip" style="background:#FDF3D9;"><span class="swatch yellow"></span> Moderate</span>
+                        <span class="legend-chip" style="background:#FCE8DC;"><span class="swatch orange"></span> High</span>
+                        <span class="legend-chip" style="background:#FBE8E5;"><span class="swatch red"></span> Very High</span>
+                        <span class="legend-chip" style="background:#F0DADA;"><span class="swatch deepred"></span> Extreme</span>
+                        <span class="legend-chip" style="background:#DCEAF0;"><span class="swatch blue"></span> Dry (humidity only)</span>
+                    </div>
+                </div>
+            {% endif %}
+            <div class="card-grid">
+                {% for key in keys %}
+                    {% set info = data[key] %}
+                    {% set rating_class = color_rules.get(key, {}).get(info.rating, "gray") %}
+                    <div class="card">
+                        <div class="banner {{ rating_class }}">
+                            {{ info.rating if info.rating is not none else "Not yet rated" }}
+                        </div>
+                        <div class="card-body">
+                            <div class="card-label">{{ display_names.get(key, key) }}</div>
+                            <div class="card-value">{{ info.value }}</div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+
+    </div>
+</body>
+</html>
