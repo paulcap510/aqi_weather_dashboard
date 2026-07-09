@@ -2,6 +2,7 @@ from datetime import datetime
 from fastapi import FastAPI, Request
 from fastapi.templating import Jinja2Templates
 from dashboard_data import get_dashboard_data
+from dashboard_data import get_dashboard_data_cached
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
@@ -58,7 +59,7 @@ def get_greeting():
 
 @app.get("/")
 def show_dashboard(request: Request):
-    data = get_dashboard_data()
+    data = get_dashboard_data_cached()
     last_updated = datetime.now().strftime("%I:%M %p")
 
     return templates.TemplateResponse(

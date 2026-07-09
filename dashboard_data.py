@@ -1,3 +1,4 @@
+from datetime import timedelta, datetime
 from fetch_weather import get_current_weather, get_current_air_quality
 from thresholds import (
     rate_aqi,
@@ -37,3 +38,32 @@ if __name__ == "__main__":
     for metric_name, metric_info in data.items():
         print(metric_name, ":", metric_info["value"], metric_info["rating"])
 
+
+
+#! CACHING
+#* Instead of calling Open-Meteo on every page load, we remember the last result and re-use loads that
+#* are recent enough
+
+_cache = {"data": None, "fetched_at": None}
+CACHE_DURATION = timedelta(minutes=15)
+
+def get_dashboard_data_cached():
+    now = datetime.now()
+
+    cache_is_empty = _cache["data"] is None
+    cache_is_stale = (
+        _cache["fetched_at"] is None
+        or (now - _cache["fetched_at"]) > CACHE_DURATION
+    )
+
+    if cache_is_empty or cache_is_stale:
+        _cache["data"] = get_dashboard_data()
+        _cache["fetched_at"] = now
+
+    return _cache["data"]
+
+
+if __name__ == "__main__":
+    data = get_dashboard_data_cached()
+    for metric_name, metric_info in data.items():
+        print(metric_name, ":", metric_info["value"], metric_info["rating"])
