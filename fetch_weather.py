@@ -52,7 +52,6 @@ def get_current_weather():
     stations_response = requests.get(stations_url, headers=headers)
     stations_response.raise_for_status()
     station_url = stations_response.json()["features"][0]["id"]
-    print("DEBUG: using weather station:", stations_response.json()["features"][0]["properties"]["name"])
 
     # Step 3: get that station's latest actual observation
     obs_response = requests.get(f"{station_url}/observations/latest", headers=headers)
@@ -103,7 +102,6 @@ def get_current_aqi():
     response = requests.get(url, params=params)
     response.raise_for_status()
     observations = response.json()
-    print("DEBUG: AQI readings by area:", [(o["ReportingArea"], o["ParameterName"], o["AQI"]) for o in observations])
 
     if not observations:
         raise RuntimeError("AirNow returned no observations for this location")
