@@ -7,6 +7,7 @@ from dashboard_data import get_dashboard_data_cached
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
 
+
 # Reader-friendly display names that appear on UI
 DISPLAY_NAMES = {
     "aqi": "AQI",
@@ -18,14 +19,15 @@ DISPLAY_NAMES = {
     "wind": "Wind Speed",
 }
 
-# Card groupings to display on the UI
+
+# Card groupings
 GROUPS = {
     "Key Thresholds": ["temp", "feels_like", "dewpoint", "aqi"],
     "Additional Reference": ["humidity", "uv"],
     "Not Yet Rated": ["wind"],
 }
 
-# Maps each metric's rating word to a CSS color class.
+
 COLOR_RULES = {
     "temp": {"green": "green", "yellow": "yellow", "red": "red"},
     "feels_like": {"green": "green", "yellow": "yellow", "red": "red"},
@@ -43,7 +45,7 @@ COLOR_RULES = {
         "average": "green",
         "high": "red",
     },
-    "wind": {},  # wind is always gray
+    "wind": {},
 }
 
 

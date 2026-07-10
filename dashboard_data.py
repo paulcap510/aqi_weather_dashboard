@@ -1,6 +1,6 @@
-from datetime import timedelta, datetime
+from datetime import datetime, timedelta
 import requests
-from fetch_weather import get_current_weather, get_current_air_quality
+from fetch_weather import get_current_weather, get_current_aqi, get_current_uv
 from thresholds import (
     rate_aqi,
     rate_dewpoint,
@@ -14,12 +14,13 @@ from thresholds import (
 
 def get_dashboard_data():
     current_weather = get_current_weather()
-    current_air_quality = get_current_air_quality()
+    aqi_value = get_current_aqi()
+    uv_value = get_current_uv()
 
     metrics = {
-        "aqi": (current_air_quality["aqi"], rate_aqi),
+        "aqi": (aqi_value, rate_aqi),
         "dewpoint": (current_weather["dewpoint_f"], rate_dewpoint),
-        "uv": (current_air_quality["uv_index"], rate_uv),
+        "uv": (uv_value, rate_uv),
         "temp": (current_weather["temp_f"], rate_temp),
         "feels_like": (current_weather["feels_like_f"], rate_feels_like),
         "humidity": (current_weather["humidity_pct"], rate_humidity),
@@ -33,20 +34,10 @@ def get_dashboard_data():
 
     return results
 
-
-if __name__ == "__main__":
-    data = get_dashboard_data()
-    for metric_name, metric_info in data.items():
-        print(metric_name, ":", metric_info["value"], metric_info["rating"])
-
-
-
-#! CACHING
-#* Instead of calling Open-Meteo on every page load, we remember the last result and re-use loads that
-#* are recent enough
-
+#! Caching: 15 minutes
 _cache = {"data": None, "fetched_at": None}
 CACHE_DURATION = timedelta(minutes=15)
+
 
 def get_dashboard_data_cached():
     now = datetime.now()
@@ -61,7 +52,7 @@ def get_dashboard_data_cached():
         try:
             _cache["data"] = get_dashboard_data()
             _cache["fetched_at"] = now
-        except requests.exceptions.RequestException:
+        except (requests.exceptions.RequestException, RuntimeError, KeyError):
             pass
 
     return _cache["data"]

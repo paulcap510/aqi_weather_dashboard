@@ -62,7 +62,7 @@ def rate_temp(temp_f: float) -> str | None:
 def rate_wind(wind_mph: float) -> str | None:
     return None
 
-
+#! Incorporate later
 def rate_pollen(pollen_level) -> str | None:
     return None
 
@@ -77,8 +77,6 @@ def rate_feels_like(feels_like_f: float) -> str | None:
         return "yellow"
     else:
         return "red"
-
-
 
 
 def rate_humidity(humidity_pct: float) -> str:
@@ -103,4 +101,3 @@ def rate_uv(uv_index: float) -> str:
         return "very high"
     else:
         return "extreme"
-
