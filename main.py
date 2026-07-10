@@ -1,7 +1,7 @@
 from datetime import datetime
+from zoneinfo import ZoneInfo
 from fastapi import FastAPI, Request
 from fastapi.templating import Jinja2Templates
-from dashboard_data import get_dashboard_data
 from dashboard_data import get_dashboard_data_cached
 
 app = FastAPI()
@@ -50,7 +50,7 @@ COLOR_RULES = {
 
 
 def get_greeting():
-    hour = datetime.now().hour
+    hour = datetime.now(ZoneInfo("America/New_York")).hour
     if hour < 12:
         return "Good morning"
     elif hour < 18:
@@ -62,7 +62,7 @@ def get_greeting():
 @app.get("/")
 def show_dashboard(request: Request):
     data = get_dashboard_data_cached()
-    last_updated = datetime.now().strftime("%I:%M %p")
+    last_updated = datetime.now(ZoneInfo("America/New_York")).strftime("%I:%M %p")
 
     return templates.TemplateResponse(
         request,
