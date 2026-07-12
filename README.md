@@ -2,6 +2,8 @@
 
 A weather dashboard designed for people managing respiratory or heat-sensitive health conditions who need more than a generic forecast to decide whether it's safe to go outside.
 
+[Live Demo] (https://aqi-weather-dashboard.onrender.com)
+
 ## Why this exists
 
 Generic weather apps show raw numbers (temperature, humidity, AQI, etc.) without helping someone with a health condition interpret what those numbers actually mean *for them*. Sky Check rates each metric against configurable personal thresholds, so instead of "AQI: 52," you see "AQI: 52 (Good to go)."
