@@ -20,6 +20,17 @@ DISPLAY_NAMES = {
 }
 
 
+METRIC_INFO = {
+    "aqi": "Measures how clean or polluted the air is, based on pollutants like ozone and fine particles. Higher numbers mean more people may start to notice effects, especially those with respiratory or heart conditions.",
+    "dewpoint": "Measures how much moisture is in the air. Above 65°F, air starts to feel heavy and humi. The higher it climbs, the harder it is for your body to cool itself.",
+    "temp": "The actual air temperature, measured in the shade, away from direct sun.",
+    "feels_like": "How the temperature actually feels on your skin, accounting for humidity and wind. This is often a better guide than the raw temperature alone.",
+    "humidity": "The percentage of moisture in the air relative to the maximum it could hold at the current temperature.",
+    "uv": "Measures the strength of the sun's ultraviolet rays. Higher numbers mean skin can burn more quickly without protection.",
+    "wind": "Current wind speed. Personal thresholds for this haven't been set yet.",
+}
+
+
 # Card groupings
 GROUPS = {
     "Key Thresholds": ["temp", "feels_like", "dewpoint", "aqi"],
@@ -72,6 +83,7 @@ def show_dashboard(request: Request):
             "display_names": DISPLAY_NAMES,
             "groups": GROUPS,
             "color_rules": COLOR_RULES,
+            "metric_info": METRIC_INFO,
             "last_updated": last_updated,
             "greeting": get_greeting(),
         },
