@@ -1,8 +1,10 @@
 import os
 import requests
-from datetime import datetime
+from datetime import timedelta
 from zoneinfo import ZoneInfo
 from dotenv import load_dotenv
+
+from timezonefinder import TimezoneFinder
 
 load_dotenv()
 
@@ -11,6 +13,7 @@ LATITUDE = 40.71709
 LONGITUDE = -73.88056
 # ZIP_CODE = "11379"
 
+TIMEZONE = TimezoneFinder().timezone_at(lat=LATITUDE, lng=LONGITUDE)
 
 NWS_USER_AGENT = os.environ.get("NWS_USER_AGENT")
 if not NWS_USER_AGENT:
@@ -18,6 +21,7 @@ if not NWS_USER_AGENT:
         "NWS_USER_AGENT environment variable is not set. "
         "Add it to your .env file before running."
     )
+
 
 
 def celsius_to_fahrenheit(celsius):
@@ -38,12 +42,12 @@ def safe_round(value, digits=1):
     return round(value, digits)
 
 
-def get_current_weather():
+def get_current_weather(latitude: float, longitude: float):
     """Fetch temp, feels-like, humidity, dewpoint, and wind from NWS."""
     headers = {"User-Agent": NWS_USER_AGENT}
 
     # Step 1: find which observation stations serve this location
-    points_url = f"https://api.weather.gov/points/{LATITUDE},{LONGITUDE}"
+    points_url = f"https://api.weather.gov/points/{latitude},{longitude}"
     points_response = requests.get(points_url, headers=headers)
     points_response.raise_for_status()
     stations_url = points_response.json()["properties"]["observationStations"]
@@ -83,7 +87,7 @@ def get_current_weather():
     }
 
 
-def get_current_aqi():
+def get_current_aqi(latitude: float, longitude: float):
     api_key = os.environ.get("AIRNOW_API_KEY")
     if not api_key:
         raise RuntimeError(
@@ -94,8 +98,8 @@ def get_current_aqi():
     url = "https://www.airnowapi.org/aq/observation/latLong/current/"
     params = {
         "format": "application/json",
-        "latitude": LATITUDE,
-        "longitude": LONGITUDE,
+        "latitude": latitude,
+        "longitude": longitude,
         "distance": 25,
         "API_KEY": api_key,
     }
@@ -111,7 +115,7 @@ def get_current_aqi():
     return max(obs["AQI"] for obs in observations)
 
 
-def get_current_uv():
+def get_current_uv(latitude: float, longitude: float):
     """Fetch current UV index from Open-Meteo's air-quality endpoint.
 
     Switched away from EPA Envirofacts after discovering its hourly UV
@@ -120,8 +124,8 @@ def get_current_uv():
     """
     url = "https://air-quality-api.open-meteo.com/v1/air-quality"
     params = {
-        "latitude": LATITUDE,
-        "longitude": LONGITUDE,
+        "latitude": latitude,
+        "longitude": longitude,
         "current": "uv_index",
     }
     response = requests.get(url, params=params)
@@ -129,69 +133,46 @@ def get_current_uv():
     data = response.json()
     return data["current"]["uv_index"]
 
-# def get_current_uv():
-#     """Fetch the current UV index from EPA Envirofacts (hourly forecast),
-#     interpolated between the current and next hour's values.
 
-#     EPA only gives one value per whole hour, but real UV rises and falls
-#     continuously through the day. Snapping to the start-of-hour value
-#     alone can be noticeably off, especially near the top of the next
-#     hour (e.g. at 9:51, most of the way from the 9 AM value toward the
-#     10 AM value already). Interpolating between the two gives a closer
-#     approximation of what's actually happening right now.
-#     """
-#     url = f"https://data.epa.gov/dmapservice/getEnvirofactsUVHOURLY/ZIP/{ZIP_CODE}/JSON"
-#     response = requests.get(url)
-#     response.raise_for_status()
-#     data = response.json()
+def get_coordinates_for_city(city_name):
+    """Given a city name, return (latitude, longitude, display_name).
+    Isolated and standalone. Does not affect any existing function."""
+    url = "https://geocoding-api.open-meteo.com/v1/search"
+    params = {"name": city_name, "count": 1}
+    response = requests.get(url, params=params)
+    response.raise_for_status()
+    data = response.json()
 
-#     if not data:
-#         raise RuntimeError(f"EPA UV API returned no data for ZIP {ZIP_CODE}")
+    results = data.get("results")
+    if not results:
+        raise ValueError(f"No location found for '{city_name}'")
 
-#     #! Needs to be changed when we allow searching
-#     eastern_now = datetime.now(ZoneInfo("America/New_York")).replace(tzinfo=None)
-
-#     parsed_entries = [
-#         (datetime.strptime(entry["DATE_TIME"], "%b/%d/%Y %I %p"), entry["UV_VALUE"])
-#         for entry in data
-#     ]
-
-#     #! This calculates how much of the hour has passed to get a more accurate UV esimate
-#     current_value = None
-#     next_value = None
-#     for i, (entry_time, value) in enumerate(parsed_entries):
-#         if entry_time.date() == eastern_now.date() and entry_time.hour == eastern_now.hour:
-#             current_value = value
-#             if i + 1 < len(parsed_entries):
-#                 next_value = parsed_entries[i + 1][1]
-#             break
-
-#     if current_value is None:
-#         return 0.0
-
-#     if next_value is None:
-#         return float(current_value)
-
-#     fraction_through_hour = (eastern_now.minute + eastern_now.second / 60) / 60
-
-#     interpolated = current_value + (next_value - current_value) * fraction_through_hour
-#     print(f"DEBUG: now={eastern_now}, current_hour_value={current_value}, next_hour_value={next_value}, fraction={fraction_through_hour:.2f}, result={interpolated:.2f}")
-#     return round(interpolated, 1)
+    result = results[0]
+    display_name = f"{result['name']}, {result.get('admin1', '')}".rstrip(", ")
+    return result["latitude"], result["longitude"], display_name
 
 
 if __name__ == "__main__":
     print("Weather (NWS):")
-    weather = get_current_weather()
+    weather = get_current_weather(LATITUDE, LONGITUDE)
     for key, value in weather.items():
         print(f"  {key}: {value}")
 
     print()
     print("AQI (AirNow):")
     try:
-        print(" ", get_current_aqi())
+        print(" ", get_current_aqi(LATITUDE, LONGITUDE))
     except RuntimeError as e:
         print("  ERROR:", e)
 
     print()
+    print("Geocoding test:")
+    lat, lon, name = get_coordinates_for_city("Miami")
+    print(f"{name} -> ({lat}, {lon})")
+
+    print()
     print("UV (Open-Meteo):")
-    print(" ", get_current_uv())
+    print(" ", get_current_uv(LATITUDE, LONGITUDE))
+
+
+

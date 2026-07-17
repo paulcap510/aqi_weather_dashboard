@@ -243,6 +243,96 @@
 
         .info-link:hover { font-weight: 1000; }
 
+        .search-form {
+            display: flex;
+            gap: 0.5rem;
+            max-width: 480px;
+        }
+        .search-input {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            border: none;
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            background: rgba(255,255,255,0.95);
+            color: var(--ink);
+        }
+
+        .search-row {
+            max-width: 960px;
+            margin: 1.5rem auto 0;
+        }
+
+
+        .search-button {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            border: none;
+            background: #F2B705;
+            color: var(--ink);
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .search-button:hover { background: #D9A441; }
+
+        .search-input::placeholder { color: #6B7280; }
+            .search-input:focus {
+            outline: 3px solid #F2B705;
+            outline-offset: 1px;
+        }
+
+
+footer {
+    background: var(--header-bg);
+    color: var(--cream);
+    padding: 2rem 1.5rem;
+    margin-top: 2rem;
+}
+.footer-inner {
+    max-width: 960px;
+    margin: 0 auto;
+}
+footer a:hover {
+    color: #F2B705;
+}
+
+.footer-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding-bottom: 1.25rem;
+    border-bottom: 1px solid rgba(247,245,240,0.15);
+}
+.footer-home {
+    font-weight: 600;
+    color: var(--cream);
+    text-decoration: underline;
+    font-size: 1rem;
+}
+.footer-credit {
+    font-size: 0.85rem;
+    color: #B8BCC4;
+    text-align: right;
+}
+.footer-credit a { color: #B8BCC4; }
+.footer-disclaimer {
+    font-size: 0.8rem;
+    color: #B8BCC4;
+    margin-top: 1.25rem;
+    line-height: 1.5;
+}
+
+
+@media (max-width: 480px) {
+    .footer-top { flex-direction: column; align-items: flex-start; }
+    .footer-credit { text-align: left; }
+}
         @media (max-width: 480px) {
             body { font-size: 17px; }
             h1 { font-size: 1.9rem; }
@@ -255,14 +345,34 @@
         <div class="inner">
             <div>
                 <h1>{{ greeting }}</h1>
-                <p class="subtitle">Outdoor conditions for Queens, NY</p>
+                <p class="subtitle">Outdoor conditions for {{ location_name }}</p>
             </div>
             <div class="timestamp">Last updated {{ last_updated }}</div>
         </div>
+            <div class="search-row">
+        <form class="search-form" action="/" method="get">
+            <input
+                type="text"
+                name="city"
+                class="search-input"
+                placeholder="Search a city (e.g. Chicago, IL)"
+                aria-label="Search a city"
+            >
+            <button type="submit" class="search-button">Search</button>
+        </form>
+    </div>
+
     </header>
     <div class="container">
 
-        {% if data is none %}
+        {% if error_message %}
+            <div class="legend" style="text-align:center; padding: 2.5rem 1.5rem;">
+                <div class="legend-title" style="margin-bottom:0.75rem;">City not found</div>
+                <p style="margin:0; color:#4A5364;">
+                    {{ error_message }} Please check the spelling and try again.
+                </p>
+            </div>
+        {% elif data is none %}
             <div class="legend" style="text-align:center; padding: 2.5rem 1.5rem;">
                 <div class="legend-title" style="margin-bottom:0.75rem;">Conditions temporarily unavailable</div>
                 <p style="margin:0; color:#4A5364;">
@@ -270,6 +380,7 @@
                     please try refreshing in a few minutes.
                 </p>
             </div>
+
         {% else %}
             <div class="legend">
                 <div class="legend-title">What the colors mean</div>
@@ -323,6 +434,22 @@
             <button class="modal-close" onclick="closeInfo()">Close</button>
         </div>
     </div>
+
+
+    <footer>
+        <div class="footer-inner">
+            <div class="footer-top">
+                <a href="/" class="footer-home">&larr; Back to home location</a>
+                <div class="footer-credit">
+                    Data from the National Weather Service, EPA AirNow, and Open-Meteo.
+                </div>
+            </div>
+            <p class="footer-disclaimer">
+                This tool provides general guidance based on personal thresholds and is not a substitute
+                for medical advice. If you have questions about a health condition, please consult your doctor.
+            </p>
+        </div>
+    </footer>
 
     <script>
         function openInfo(title, text) {
