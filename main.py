@@ -4,7 +4,7 @@ from fastapi import FastAPI, Request, Depends, HTTPException
 from collections import defaultdict
 from fastapi.templating import Jinja2Templates
 from dashboard_data import get_dashboard_data_cached, LATITUDE, LONGITUDE
-from fetch_weather import LATITUDE, LONGITUDE, get_coordinates_for_city
+from fetch_weather import LATITUDE, LONGITUDE, TIMEZONE, get_coordinates_for_city
 from timezonefinder import TimezoneFinder
 
 app = FastAPI()
@@ -109,7 +109,7 @@ def show_dashboard(request: Request, city: str = None, _: None = Depends(check_r
                     "color_rules": COLOR_RULES,
                     "metric_info": METRIC_INFO,
                     "last_updated": "",
-                    "greeting": get_greeting(location_timezone),
+                    "greeting": get_greeting(TIMEZONE),
                     "location_name": city,
                 },
             )
