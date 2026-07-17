@@ -3,7 +3,7 @@ from zoneinfo import ZoneInfo
 from fastapi import FastAPI, Request, Depends, HTTPException
 from collections import defaultdict
 from fastapi.templating import Jinja2Templates
-from dashboard_data import get_dashboard_data_cached, LATITUDE, LONGITUDE
+from dashboard_data import get_dashboard_data_cached
 from fetch_weather import LATITUDE, LONGITUDE, TIMEZONE, get_coordinates_for_city
 from timezonefinder import TimezoneFinder
 
