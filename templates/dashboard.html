@@ -328,6 +328,36 @@ footer a:hover {
     line-height: 1.5;
 }
 
+.loading-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(30, 37, 48, 0.92);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+.loading-overlay.active { display: flex; }
+
+.hourglass-icon {
+    font-size: 3rem;
+    animation: flip 1.4s ease-in-out infinite;
+}
+@keyframes flip {
+    0%   { transform: rotate(0deg); }
+    45%  { transform: rotate(180deg); }
+    55%  { transform: rotate(180deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loading-text {
+    color: var(--cream);
+    font-family: 'Inter', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-top: 1rem;
+}
 
 @media (max-width: 480px) {
     .footer-top { flex-direction: column; align-items: flex-start; }
@@ -350,7 +380,7 @@ footer a:hover {
             <div class="timestamp">Last updated {{ last_updated }}</div>
         </div>
             <div class="search-row">
-        <form class="search-form" action="/" method="get">
+        <form class="search-form" action="/" method="get" id="searchForm">
             <input
                 type="text"
                 name="city"
@@ -451,6 +481,12 @@ footer a:hover {
         </div>
     </footer>
 
+
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="hourglass-icon">⏳</div>
+        <div class="loading-text">Loading data&hellip;</div>
+    </div>
+
     <script>
         function openInfo(title, text) {
             document.getElementById('modalTitle').textContent = title;
@@ -463,6 +499,11 @@ footer a:hover {
         function closeInfoOnBackdrop(event) {
             if (event.target.id === 'infoModal') closeInfo();
         }
+
+        document.getElementById('searchForm').addEventListener('submit', function() {
+        document.getElementById('loadingOverlay').classList.add('active');
+        });
+
     </script>
 </body>
 </html>
