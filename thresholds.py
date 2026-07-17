@@ -29,6 +29,8 @@ THRESHOLDS = {
 
 
 def rate_dewpoint(dewpoint_f: float) -> str:
+    if dewpoint_f is None:
+        return None
     cfg = THRESHOLDS["dewpoint_f"]
     if dewpoint_f < cfg["green_max"]:
         return "green"
@@ -39,6 +41,8 @@ def rate_dewpoint(dewpoint_f: float) -> str:
 
 
 def rate_aqi(aqi: float) -> str:
+    if aqi is None:
+        return None
     cfg = THRESHOLDS["aqi"]
     if aqi < cfg["green_max"]:
         return "green"
@@ -49,6 +53,8 @@ def rate_aqi(aqi: float) -> str:
 
 
 def rate_temp(temp_f: float) -> str | None:
+    if temp_f is None:
+        return None
     cfg = THRESHOLDS["temp_f"]
     if temp_f < cfg["green_min"]:
         return None
@@ -68,6 +74,8 @@ def rate_pollen(pollen_level) -> str | None:
 
 
 def rate_feels_like(feels_like_f: float) -> str | None:
+    if feels_like_f is None:
+        return None
     cfg = THRESHOLDS["temp_f"]
     if feels_like_f < cfg["green_min"]:
         return None
@@ -80,6 +88,8 @@ def rate_feels_like(feels_like_f: float) -> str | None:
 
 
 def rate_humidity(humidity_pct: float) -> str:
+    if humidity_pct is None:
+        return None
     cfg = THRESHOLDS["humidity_pct"]
     if humidity_pct < cfg["low_max"]:
         return "low"
@@ -90,6 +100,8 @@ def rate_humidity(humidity_pct: float) -> str:
 
 
 def rate_uv(uv_index: float) -> str:
+    if uv_index is None:
+        return None
     cfg = THRESHOLDS["uv_index"]
     if uv_index <= cfg["low_max"]:
         return "low"

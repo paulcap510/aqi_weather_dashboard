@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 import requests
-from fetch_weather import get_current_weather, get_current_aqi, get_current_uv
+from fetch_weather import get_current_weather, get_current_aqi, get_current_uv, LATITUDE, LONGITUDE
 from thresholds import (
     rate_aqi,
     rate_dewpoint,
@@ -12,10 +12,10 @@ from thresholds import (
 )
 
 
-def get_dashboard_data():
-    current_weather = get_current_weather()
-    aqi_value = get_current_aqi()
-    uv_value = get_current_uv()
+def get_dashboard_data(latitude: float, longitude: float):
+    current_weather = get_current_weather(latitude, longitude)
+    aqi_value = get_current_aqi(latitude, longitude)
+    uv_value = get_current_uv(latitude, longitude)
 
     metrics = {
         "aqi": (aqi_value, rate_aqi),
@@ -34,31 +34,42 @@ def get_dashboard_data():
 
     return results
 
-#! Caching: 15 minutes
-_cache = {"data": None, "fetched_at": None}
+# _cache = {"data": None, "fetched_at": None}
+# CACHE_DURATION = timedelta(minutes=15)
+#! Caching layer = One cache entry PER (latitude, longitude) pair, so different cities don't overwrite each other
+_cache = {}
 CACHE_DURATION = timedelta(minutes=15)
 
 
-def get_dashboard_data_cached():
+def get_dashboard_data_cached(latitude, longitude):
     now = datetime.now()
+    location_key = (latitude, longitude)
 
-    cache_is_empty = _cache["data"] is None
-    cache_is_stale = (
-        _cache["fetched_at"] is None
-        or (now - _cache["fetched_at"]) > CACHE_DURATION
-    )
+    location_is_new = location_key not in _cache
+    if location_is_new:
+        cache_is_stale = True
+    else:
+        fetched_at = _cache[location_key]["fetched_at"]
+        cache_is_stale = (now - fetched_at) > CACHE_DURATION
 
-    if cache_is_empty or cache_is_stale:
+    if location_is_new or cache_is_stale:
         try:
-            _cache["data"] = get_dashboard_data()
-            _cache["fetched_at"] = now
+            _cache[location_key] = {
+                "data": get_dashboard_data(latitude, longitude),
+                "fetched_at": now,
+            }
         except (requests.exceptions.RequestException, RuntimeError, KeyError):
-            pass
+            # If this location has never been successfully fetched before,
+            # there's nothing to fall back to -- surface that as no data.
+            if location_is_new:
+                return None
+            # Otherwise, keep serving this location's last good data.
 
-    return _cache["data"]
+    return _cache[location_key]["data"]
+
 
 
 if __name__ == "__main__":
-    data = get_dashboard_data_cached()
+    data = get_dashboard_data_cached(LATITUDE, LONGITUDE)
     for metric_name, metric_info in data.items():
         print(metric_name, ":", metric_info["value"], metric_info["rating"])
