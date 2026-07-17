@@ -79,8 +79,8 @@ COLOR_RULES = {
 }
 
 
-def get_greeting():
-    hour = datetime.now(ZoneInfo("America/New_York")).hour
+def get_greeting(timezone_name):
+    hour = datetime.now(ZoneInfo(timezone_name)).hour
     if hour < 12:
         return "Good morning"
     elif hour < 18:
@@ -90,10 +90,7 @@ def get_greeting():
 
 
 
-    #** Depends() runs check_rate_limit before this route's code executes.
-    #** If it raises (429), this whole function is skipped and the error
-    #** handler takes over. If it doesn't raise, execution just continues
-    #** normally -- the returned None (held in `_`) is never used.
+
 
 @app.get("/")
 def show_dashboard(request: Request, city: str = None, _: None = Depends(check_rate_limit)):
@@ -112,7 +109,7 @@ def show_dashboard(request: Request, city: str = None, _: None = Depends(check_r
                     "color_rules": COLOR_RULES,
                     "metric_info": METRIC_INFO,
                     "last_updated": "",
-                    "greeting": get_greeting(),
+                    "greeting": get_greeting(location_timezone),
                     "location_name": city,
                 },
             )
@@ -135,7 +132,7 @@ def show_dashboard(request: Request, city: str = None, _: None = Depends(check_r
             "color_rules": COLOR_RULES,
             "metric_info": METRIC_INFO,
             "last_updated": last_updated,
-            "greeting": get_greeting(),
+            "greeting": get_greeting(location_timezone),
             "location_name": location_name,
             "error_message": None,
         },
