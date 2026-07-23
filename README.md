@@ -1,8 +1,8 @@
-# Sky Check — Personalized Outdoor Conditions Dashboard
+# Sky Check: Personalized Outdoor Conditions Dashboard
 
 A weather dashboard designed for people managing respiratory or heat-sensitive health conditions who need more than a generic forecast to decide whether it's safe to go outside.
 
-[Live Demo] (https://aqi-weather-dashboard.onrender.com)
+[Live Demo](https://aqi-weather-dashboard.onrender.com)
 
 ## Why this exists
 
@@ -10,17 +10,26 @@ Generic weather apps show raw numbers (temperature, humidity, AQI, etc.) without
 
 A key design decision: **there is no single combined "safe to go outside" score.** Collapsing multiple health-relevant factors into one number would hide which specific factor is driving the day's risk, e.g. high humidity and high AQI require different responses, even if a naive average made the day look the same. Each metric is rated and displayed independently.
 
-The app was originally designed for a family member suffering from these conditions, but is being expanded for more general usage.
+The app was originally designed for a family member suffering from these conditions, but is being adapted and expanded for more general usage.
 
 ## Features
 
 - Real-time data from three independent government/public sources (see below)
-- Configurable thresholds per metric, tuned to the individual using the dashboard
-- Color-coded ratings (green / yellow / red) plus broader reference scales for metrics without personalized thresholds (e.g. UV index)
-- Server-side caching (15-minute window) to minimize redundant API calls
-- Graceful degradation — if a data source is temporarily unavailable, the app falls back to the last known-good data rather than crashing
+- **Search by city**: look up conditions anywhere in the US, not just one fixed location, with results geocoded and cached per location
+- Individual thresholds per metric, tuned to the individual using the dashboard
+- Color-coded ratings (green / yellow / red) plus broader reference scales for metrics without personalized thresholds (UV index)
+- Server-side caching (15-minute window, per location) to minimize redundant API calls
+- Graceful degradation: if a data source is temporarily unavailable, the app falls back to the last known-good data rather than crashing
+- Distinct error handling for invalid city searches vs. genuine service outages
+- Per-visitor rate limiting to protect shared API quotas from abuse
 - Accessibility-focused UI: large text, high-contrast color banners, and a legend explaining what each color means
+- Loading indicator during searches, since the app performs a full server round-trip rather than an instant client-side update
 
+## Next steps
+
+- Improve city search to distinguish cities with the same name (e.g. searching "Springfield" currently returns whichever match the geocoding service ranks first, without indicating that Springfield, Illinois and Springfield, Massachusetts are different places), likely via a type-ahead dropdown showing multiple matches before committing to a search
+- Expand personal thresholds to cover wind and pollen, once real data sources are identified for them
+  
 ## Data sources
 
 | Source | Data | Why this source |
@@ -63,7 +72,3 @@ This separation means the entire data source layer (`fetch_weather.py`) was swap
 - Wind and pollen are not yet rated against personal thresholds (displayed as reference data only)
 - Location is currently fixed to a single set of coordinates; multi-location search is a planned future addition
 
-## Planned Features
-
-- Allow users to search for data by city (right now it only shows data from New York City)
-- UI improvement (hover effect to show what each metric means) and FAQ sections
