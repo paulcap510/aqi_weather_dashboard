@@ -151,6 +151,23 @@ def get_coordinates_for_city(city_name):
     display_name = f"{result['name']}, {result.get('admin1', '')}".rstrip(", ")
     return result["latitude"], result["longitude"], display_name
 
+def get_city_suggestions(query):
+    url = "https://geocoding-api.open-meteo.com/v1/search"
+    params = {"name": query, "count": 5}
+    response = requests.get(url, params=params)
+    response.raise_for_status()
+    data = response.json()
+
+    results = data.get("results", [])
+    suggestions = []
+    for result in results:
+        display_name = f"{result['name']}, {result.get('admin1', '')}".rstrip(", ")
+        suggestions.append({
+            "name": display_name,
+            "latitude": result["latitude"],
+            "longitude": result["longitude"],
+        })
+    return suggestions
 
 if __name__ == "__main__":
     print("Weather (NWS):")

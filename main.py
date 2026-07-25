@@ -4,7 +4,7 @@ from fastapi import FastAPI, Request, Depends, HTTPException
 from collections import defaultdict
 from fastapi.templating import Jinja2Templates
 from dashboard_data import get_dashboard_data_cached
-from fetch_weather import LATITUDE, LONGITUDE, TIMEZONE, get_coordinates_for_city
+from fetch_weather import LATITUDE, LONGITUDE, TIMEZONE, get_coordinates_for_city, get_city_suggestions
 from timezonefinder import TimezoneFinder
 
 app = FastAPI()
@@ -93,8 +93,10 @@ def get_greeting(timezone_name):
 
 
 @app.get("/")
-def show_dashboard(request: Request, city: str = None, _: None = Depends(check_rate_limit)):
-    if city:
+def show_dashboard(request: Request, city: str = None, lat: str = None, lon: str = None, _: None = Depends(check_rate_limit)):
+    if lat and lon:
+        latitude, longitude, location_name = float(lat), float(lon), city
+    elif city:
         try:
             latitude, longitude, location_name = get_coordinates_for_city(city)
         except ValueError:
@@ -137,6 +139,12 @@ def show_dashboard(request: Request, city: str = None, _: None = Depends(check_r
             "error_message": None,
         },
     )
+
+
+@app.get("/search-cities")
+def search_cities(q: str):
+    suggestions = get_city_suggestions(q)
+    return {"matches": suggestions}
 
 
 @app.exception_handler(HTTPException)

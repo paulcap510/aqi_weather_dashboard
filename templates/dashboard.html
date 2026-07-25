@@ -247,6 +247,7 @@
             display: flex;
             gap: 0.5rem;
             max-width: 480px;
+            position: relative;
         }
         .search-input {
             flex: 1;
@@ -359,6 +360,29 @@ footer a:hover {
     margin-top: 1rem;
 }
 
+
+.suggestions-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border-radius: 8px;
+    margin-top: 0.5rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    overflow: hidden;
+    z-index: 50;
+}
+.suggestion-item {
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    font-size: 0.95rem;
+    color: var(--ink);
+}
+.suggestion-item:hover { background: #F0EEE8; }
+.suggestion-item:not(:last-child) { border-bottom: 1px solid #E7E2D8; }
+
+
 @media (max-width: 480px) {
     .footer-top { flex-direction: column; align-items: flex-start; }
     .footer-credit { text-align: left; }
@@ -384,11 +408,15 @@ footer a:hover {
             <input
                 type="text"
                 name="city"
+                id="cityInput"
                 class="search-input"
                 placeholder="Search a city (e.g. Chicago, IL)"
                 aria-label="Search a city"
             >
+            <input type="hidden" id="cityLat" name="lat">
+            <input type="hidden" id="cityLon" name="lon">
             <button type="submit" class="search-button">Search</button>
+            <div class="suggestions-dropdown" id="suggestionsDropdown" style="display: none;"></div>
         </form>
     </div>
 
@@ -488,6 +516,8 @@ footer a:hover {
     </div>
 
     <script>
+        let searchTimer = null;
+
         function openInfo(title, text) {
             document.getElementById('modalTitle').textContent = title;
             document.getElementById('modalText').textContent = text;
@@ -503,6 +533,59 @@ footer a:hover {
         document.getElementById('searchForm').addEventListener('submit', function() {
         document.getElementById('loadingOverlay').classList.add('active');
         });
+
+
+document.getElementById('cityInput').addEventListener('input', function() {
+    const typedText = this.value;
+    clearTimeout(searchTimer);
+
+    if (typedText.length < 3) {
+        document.getElementById('suggestionsDropdown').style.display = 'none';
+        return;
+    }
+
+    searchTimer = setTimeout(() => {
+        fetch('/search-cities?q=' + typedText)
+            .then(response => response.json())
+            .then(data => {
+                renderSuggestions(data.matches);
+            });
+    }, 300);
+});
+
+
+
+function renderSuggestions(matches) {
+    const dropdown = document.getElementById('suggestionsDropdown');
+    dropdown.innerHTML = '';
+
+    if (matches.length === 0) {
+        dropdown.style.display = 'none';
+        return;
+    }
+
+    matches.forEach(function(match) {
+        const item = document.createElement('div');
+        item.className = 'suggestion-item';
+        item.textContent = match.name;
+        item.addEventListener('click', function() {
+            selectCity(match.name, match.latitude, match.longitude);
+        });
+        dropdown.appendChild(item);
+    });
+
+    dropdown.style.display = 'block';
+}
+
+function selectCity(cityName, latitude, longitude) {
+    document.getElementById('cityInput').value = cityName;
+    document.getElementById('cityLat').value = latitude;
+    document.getElementById('cityLon').value = longitude;
+    document.getElementById('suggestionsDropdown').style.display = 'none';
+    document.getElementById('loadingOverlay').classList.add('active');
+    document.getElementById('searchForm').submit();
+}
+
 
     </script>
 </body>
