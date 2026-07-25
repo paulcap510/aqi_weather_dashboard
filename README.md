@@ -69,6 +69,7 @@ This separation means the entire data source layer (`fetch_weather.py`) was swap
 
 ## Known limitations
 
+- Rate limiting uses in-memory, per-server storage; this works correctly for a single instance but wouldn't hold up across multiple server instances (a production deployment at higher scale would use a shared store like Redis instead)
 - Free-tier hosting means the app may take up to a minute to "wake up" after a period of inactivity
 - Wind and pollen are not yet rated against personal thresholds (displayed as reference data only)
 - Search is effectively limited to US locations, since both the National Weather Service and AirNow are US-specific data sources. Searching international cities may return incomplete or missing data

@@ -16,6 +16,22 @@ RATE_LIMIT = 15  # searches per hour, per visitor IP
 _request_log = defaultdict(list)
 #** _request_log = indicates this will be used in this file specifically
 
+
+SUGGESTIONS_RATE_LIMIT = 60  # suggestion lookups per hour, per visitor IP
+_suggestions_request_log = defaultdict(list)
+
+def check_suggestions_rate_limit(request: Request):
+    ip = request.client.host
+    now = datetime.now()
+    one_hour_ago = now - timedelta(hours=1)
+    _suggestions_request_log[ip] = [t for t in _suggestions_request_log[ip] if t > one_hour_ago]
+
+    if len(_suggestions_request_log[ip]) >= SUGGESTIONS_RATE_LIMIT:
+        raise HTTPException(status_code=429, detail="Too many requests. Please wait a bit.")
+
+    _suggestions_request_log[ip].append(now)
+
+
 def check_rate_limit(request: Request):
     ip = request.client.host
     now = datetime.now()
@@ -142,7 +158,7 @@ def show_dashboard(request: Request, city: str = None, lat: str = None, lon: str
 
 
 @app.get("/search-cities")
-def search_cities(q: str):
+def search_cities(q: str, _: None = Depends(check_suggestions_rate_limit)):
     suggestions = get_city_suggestions(q)
     return {"matches": suggestions}
 
