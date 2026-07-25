@@ -24,12 +24,13 @@ The app was originally designed for a family member suffering from these conditi
 - Per-visitor rate limiting to protect shared API quotas from abuse
 - Accessibility-focused UI: large text, high-contrast color banners, and a legend explaining what each color means
 - Loading indicator during searches, since the app performs a full server round-trip rather than an instant client-side update
+- **Type-ahead search suggestions** — disambiguates identically-named cities (e.g. distinguishing Springfield, Illinois from Springfield, Massachusetts) by showing a dropdown of specific matches, complete with their own coordinates, before committing to a search
 
 ## Next steps
 
-- Improve city search to distinguish cities with the same name (e.g. searching "Springfield" currently returns whichever match the geocoding service ranks first, without indicating that Springfield, Illinois and Springfield, Massachusetts are different places), likely via a type-ahead dropdown showing multiple matches before committing to a search
+
 - Expand personal thresholds to cover wind and pollen, once real data sources are identified for them
-  
+
 ## Data sources
 
 | Source | Data | Why this source |
@@ -70,5 +71,4 @@ This separation means the entire data source layer (`fetch_weather.py`) was swap
 
 - Free-tier hosting means the app may take up to a minute to "wake up" after a period of inactivity
 - Wind and pollen are not yet rated against personal thresholds (displayed as reference data only)
-- Location is currently fixed to a single set of coordinates; multi-location search is a planned future addition
-
+- Search is effectively limited to US locations, since both the National Weather Service and AirNow are US-specific data sources. Searching international cities may return incomplete or missing data
