@@ -534,24 +534,23 @@ footer a:hover {
         document.getElementById('loadingOverlay').classList.add('active');
         });
 
+        document.getElementById('cityInput').addEventListener('input', function() {
+            const typedText = this.value;
+            clearTimeout(searchTimer);
 
-document.getElementById('cityInput').addEventListener('input', function() {
-    const typedText = this.value;
-    clearTimeout(searchTimer);
+            if (typedText.length < 3) {
+                document.getElementById('suggestionsDropdown').style.display = 'none';
+                return;
+            }
 
-    if (typedText.length < 3) {
-        document.getElementById('suggestionsDropdown').style.display = 'none';
-        return;
-    }
-
-    searchTimer = setTimeout(() => {
-        fetch('/search-cities?q=' + typedText)
-            .then(response => response.json())
-            .then(data => {
-                renderSuggestions(data.matches);
-            });
-    }, 300);
-});
+            searchTimer = setTimeout(() => {
+                fetch('/search-cities?q=' + typedText)
+                    .then(response => response.json())
+                    .then(data => {
+                        renderSuggestions(data.matches);
+                    });
+            }, 300);
+        });
 
 
 
