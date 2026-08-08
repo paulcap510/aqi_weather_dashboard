@@ -1,591 +1,692 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Sky Check - Air Quality Checker</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="icon" type="image/png" href="/static/favicon.png" />
     <style>
-        :root {
-            --ink: #000000;
-            --header-bg: #1E2530;
-            --cream: #F7F5F0;
-            --green-bg: #2E7D4F;
-            --yellow-bg: #F2B705;
-            --orange-bg: #C2410C;
-            --red-bg: #C0392B;
-            --deepred-bg: #7F1D1D;
-            --blue-bg: #2C6E8E;
-            --gray-bg: #6B7280;
-            --card-bg: #FFFFFF;
+      :root {
+        --ink: #000000;
+        --header-bg: #1e2530;
+        --cream: #f7f5f0;
+        --green-bg: #2e7d4f;
+        --yellow-bg: #f2b705;
+        --orange-bg: #c2410c;
+        --red-bg: #c0392b;
+        --deepred-bg: #7f1d1d;
+        --blue-bg: #2c6e8e;
+        --gray-bg: #6b7280;
+        --card-bg: #ffffff;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--cream);
+        font-family: 'Inter', sans-serif;
+        color: var(--ink);
+        font-size: 18px;
+      }
+
+      header {
+        background: var(--header-bg);
+        color: var(--cream);
+        padding: 2rem 1.5rem;
+      }
+
+      header .inner {
+        max-width: 960px;
+        margin: 0 auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+      }
+
+      h1 {
+        font-family: 'Fraunces', serif;
+        font-weight: 700;
+        font-size: 2.4rem;
+        margin: 0 0 0.3rem;
+      }
+
+      .subtitle {
+        font-size: 1.15rem;
+        opacity: 0.9;
+        margin: 0;
+      }
+
+      .timestamp {
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 1rem;
+        opacity: 0.85;
+      }
+
+      .container {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 2rem 1.5rem 3rem;
+      }
+
+      .legend {
+        background: var(--card-bg);
+        border: 2px solid #d9d3c4;
+        border-radius: 12px;
+        padding: 1.1rem 1.25rem;
+        margin-bottom: 2rem;
+      }
+
+      .legend-title {
+        font-weight: 700;
+        font-size: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--ink);
+        margin-bottom: 0.75rem;
+      }
+
+      .legend-items {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+      }
+
+      .legend-chip {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.4rem 0.8rem;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-weight: 600;
+      }
+
+      .legend-chip .swatch {
+        width: 18px;
+        height: 18px;
+        border-radius: 4px;
+        flex-shrink: 0;
+      }
+
+      .swatch.green,
+      .banner.green {
+        background: var(--green-bg);
+      }
+      .swatch.yellow,
+      .banner.yellow {
+        background: var(--yellow-bg);
+      }
+      .swatch.orange,
+      .banner.orange {
+        background: var(--orange-bg);
+      }
+      .swatch.red,
+      .banner.red {
+        background: var(--red-bg);
+      }
+      .swatch.deepred,
+      .banner.deepred {
+        background: var(--deepred-bg);
+      }
+      .swatch.blue,
+      .banner.blue {
+        background: var(--blue-bg);
+      }
+      .swatch.gray,
+      .banner.gray {
+        background: var(--gray-bg);
+      }
+
+      .legend-secondary {
+        margin: -0.5rem 0 1.5rem;
+      }
+
+      .group-label {
+        font-family: 'Inter', sans-serif;
+        font-size: 1rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--ink);
+        margin: 2.25rem 0 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 3px solid #d9d3c4;
+      }
+
+      .group-note {
+        font-size: 0.95rem;
+        color: #4a5364;
+        margin: -0.5rem 0 1rem;
+      }
+
+      .card-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 1.25rem;
+      }
+
+      .card {
+        background: var(--card-bg);
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 6px rgba(30, 37, 48, 0.1);
+        position: relative;
+      }
+
+      .banner {
+        padding: 0.6rem 1.25rem;
+        font-family: 'Inter', sans-serif;
+        font-size: 1.05rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+
+      .banner.green,
+      .banner.orange,
+      .banner.red,
+      .banner.deepred,
+      .banner.blue,
+      .banner.gray {
+        color: #ffffff;
+      }
+      .banner.yellow {
+        color: var(--ink);
+      }
+
+      .card-body {
+        padding: 1.25rem 1.25rem 1.4rem;
+      }
+
+      .card-label {
+        font-family: 'Fraunces', serif;
+        font-size: 1.25rem;
+        font-weight: 400;
+        color: #3a4252;
+        margin-bottom: 0.4rem;
+      }
+
+      .card-value {
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 3rem;
+        font-weight: 700;
+        line-height: 1;
+      }
+
+      .modal-backdrop {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 100;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .modal-backdrop.open {
+        display: flex;
+      }
+      .modal-box {
+        background: var(--card-bg);
+        border-radius: 12px;
+        padding: 1.5rem;
+        max-width: 400px;
+        margin: 1rem;
+      }
+
+      .modal-title {
+        font-family: 'Fraunces', serif;
+        font-weight: 700;
+        font-size: 1.3rem;
+        margin-bottom: 0.75rem;
+      }
+
+      .modal-close {
+        margin-top: 1.25rem;
+        padding: 0.6rem 1.2rem;
+        border-radius: 8px;
+        border: none;
+        background: var(--ink);
+        color: white;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      .info-link {
+        display: inline-block;
+        background: none;
+        border: none;
+        padding: 0;
+        margin: 0.5rem 0 0;
+        font-family: inherit;
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: var(--blue-bg);
+        text-decoration: underline;
+        cursor: pointer;
+      }
+
+      .info-link:hover {
+        font-weight: 1000;
+      }
+
+      .search-form {
+        display: flex;
+        gap: 0.5rem;
+        max-width: 480px;
+        position: relative;
+      }
+      .search-input {
+        flex: 1;
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        border: none;
+        font-family: 'Inter', sans-serif;
+        font-size: 1rem;
+        background: rgba(255, 255, 255, 0.95);
+        color: var(--ink);
+      }
+
+      .search-row {
+        max-width: 960px;
+        margin: 1.5rem auto 0;
+      }
+
+      .search-button {
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        border: none;
+        background: #f2b705;
+        color: var(--ink);
+        font-family: 'Inter', sans-serif;
+        font-size: 1rem;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      .search-button:hover {
+        background: #d9a441;
+      }
+
+      .search-input::placeholder {
+        color: #6b7280;
+      }
+      .search-input:focus {
+        outline: 3px solid #f2b705;
+        outline-offset: 1px;
+      }
+
+      footer {
+        background: var(--header-bg);
+        color: var(--cream);
+        padding: 2rem 1.5rem;
+        margin-top: 2rem;
+      }
+      .footer-inner {
+        max-width: 960px;
+        margin: 0 auto;
+      }
+      footer a:hover {
+        color: #f2b705;
+      }
+
+      .footer-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+        padding-bottom: 1.25rem;
+        border-bottom: 1px solid rgba(247, 245, 240, 0.15);
+      }
+      .footer-home {
+        font-weight: 600;
+        color: var(--cream);
+        text-decoration: underline;
+        font-size: 1rem;
+      }
+      .footer-credit {
+        font-size: 0.85rem;
+        color: #b8bcc4;
+        text-align: right;
+      }
+      .footer-credit a {
+        color: #b8bcc4;
+      }
+      .footer-disclaimer {
+        font-size: 0.8rem;
+        color: #b8bcc4;
+        margin-top: 1.25rem;
+        line-height: 1.5;
+      }
+
+      .loading-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(30, 37, 48, 0.92);
+        z-index: 200;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+      }
+      .loading-overlay.active {
+        display: flex;
+      }
+
+      .hourglass-icon {
+        font-size: 3rem;
+        animation: flip 1.4s ease-in-out infinite;
+      }
+      @keyframes flip {
+        0% {
+          transform: rotate(0deg);
         }
+        45% {
+          transform: rotate(180deg);
+        }
+        55% {
+          transform: rotate(180deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
 
-        * { box-sizing: border-box; }
+      .loading-text {
+        color: var(--cream);
+        font-family: 'Inter', sans-serif;
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-top: 1rem;
+      }
 
+      .suggestions-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border-radius: 8px;
+        margin-top: 0.5rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        overflow: hidden;
+        z-index: 50;
+      }
+      .suggestion-item {
+        padding: 0.75rem 1rem;
+        cursor: pointer;
+        font-size: 0.95rem;
+        color: var(--ink);
+      }
+      .suggestion-item:hover {
+        background: #f0eee8;
+      }
+      .suggestion-item:not(:last-child) {
+        border-bottom: 1px solid #e7e2d8;
+      }
+
+      @media (max-width: 480px) {
+        .footer-top {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+        .footer-credit {
+          text-align: left;
+        }
+      }
+      @media (max-width: 480px) {
         body {
-            margin: 0;
-            background: var(--cream);
-            font-family: 'Inter', sans-serif;
-            color: var(--ink);
-            font-size: 18px;
+          font-size: 17px;
         }
-
-        header {
-            background: var(--header-bg);
-            color: var(--cream);
-            padding: 2rem 1.5rem;
-        }
-
-        header .inner {
-            max-width: 960px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            flex-wrap: wrap;
-            gap: 0.75rem;
-        }
-
         h1 {
-            font-family: 'Fraunces', serif;
-            font-weight: 700;
-            font-size: 2.4rem;
-            margin: 0 0 0.3rem;
+          font-size: 1.9rem;
         }
-
-        .subtitle {
-            font-size: 1.15rem;
-            opacity: 0.9;
-            margin: 0;
-        }
-
-        .timestamp {
-            font-family: 'IBM Plex Mono', monospace;
-            font-size: 1rem;
-            opacity: 0.85;
-        }
-
-        .container {
-            max-width: 960px;
-            margin: 0 auto;
-            padding: 2rem 1.5rem 3rem;
-        }
-
-        .legend {
-            background: var(--card-bg);
-            border: 2px solid #D9D3C4;
-            border-radius: 12px;
-            padding: 1.1rem 1.25rem;
-            margin-bottom: 2rem;
-        }
-
-        .legend-title {
-            font-weight: 700;
-            font-size: 1rem;
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
-            color: var(--ink);
-            margin-bottom: 0.75rem;
-        }
-
-        .legend-items {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.6rem;
-        }
-
-        .legend-chip {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.4rem 0.8rem;
-            border-radius: 8px;
-            font-size: 0.95rem;
-            font-weight: 600;
-        }
-
-        .legend-chip .swatch {
-            width: 18px;
-            height: 18px;
-            border-radius: 4px;
-            flex-shrink: 0;
-        }
-
-        .swatch.green, .banner.green { background: var(--green-bg); }
-        .swatch.yellow, .banner.yellow { background: var(--yellow-bg); }
-        .swatch.orange, .banner.orange { background: var(--orange-bg); }
-        .swatch.red, .banner.red { background: var(--red-bg); }
-        .swatch.deepred, .banner.deepred { background: var(--deepred-bg); }
-        .swatch.blue, .banner.blue { background: var(--blue-bg); }
-        .swatch.gray, .banner.gray { background: var(--gray-bg); }
-
-        .legend-secondary {
-            margin: -0.5rem 0 1.5rem;
-        }
-
-        .group-label {
-            font-family: 'Inter', sans-serif;
-            font-size: 1rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            color: var(--ink);
-            margin: 2.25rem 0 1rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 3px solid #D9D3C4;
-        }
-
-        .group-note {
-            font-size: 0.95rem;
-            color: #4A5364;
-            margin: -0.5rem 0 1rem;
-        }
-
-        .card-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            gap: 1.25rem;
-        }
-
-        .card {
-            background: var(--card-bg);
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 2px 6px rgba(30, 37, 48, 0.1);
-            position: relative;
-        }
-
-        .banner {
-            padding: 0.6rem 1.25rem;
-            font-family: 'Inter', sans-serif;
-            font-size: 1.05rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-        }
-
-        .banner.green, .banner.orange, .banner.red, .banner.deepred, .banner.blue, .banner.gray { color: #FFFFFF; }
-        .banner.yellow { color: var(--ink); }
-
-        .card-body {
-            padding: 1.25rem 1.25rem 1.4rem;
-        }
-
-        .card-label {
-            font-family: 'Fraunces', serif;
-            font-size: 1.25rem;
-            font-weight: 400;
-            color: #3A4252;
-            margin-bottom: 0.4rem;
-        }
-
         .card-value {
-            font-family: 'IBM Plex Mono', monospace;
-            font-size: 3rem;
-            font-weight: 700;
-            line-height: 1;
+          font-size: 2.6rem;
         }
-
-        .modal-backdrop {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 100;
-            align-items: center;
-            justify-content: center;
-        }
-
-
-        .modal-backdrop.open { display: flex; }
-        .modal-box {
-            background: var(--card-bg);
-            border-radius: 12px;
-            padding: 1.5rem;
-            max-width: 400px;
-            margin: 1rem;
-        }
-
-        .modal-title {
-            font-family: 'Fraunces', serif;
-            font-weight: 700;
-            font-size: 1.3rem;
-            margin-bottom: 0.75rem;
-        }
-
-
-        .modal-close {
-            margin-top: 1.25rem;
-            padding: 0.6rem 1.2rem;
-            border-radius: 8px;
-            border: none;
-            background: var(--ink);
-            color: white;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-
-        .info-link {
-            display: inline-block;
-            background: none;
-            border: none;
-            padding: 0;
-            margin: 0.5rem 0 0;
-            font-family: inherit;
-            font-size: 0.85rem;
-            font-weight: 500;
-            color: var(--blue-bg);
-            text-decoration: underline;
-            cursor: pointer;
-        }
-
-        .info-link:hover { font-weight: 1000; }
-
-        .search-form {
-            display: flex;
-            gap: 0.5rem;
-            max-width: 480px;
-            position: relative;
-        }
-        .search-input {
-            flex: 1;
-            padding: 0.75rem 1rem;
-            border-radius: 8px;
-            border: none;
-            font-family: 'Inter', sans-serif;
-            font-size: 1rem;
-            background: rgba(255,255,255,0.95);
-            color: var(--ink);
-        }
-
-        .search-row {
-            max-width: 960px;
-            margin: 1.5rem auto 0;
-        }
-
-
-        .search-button {
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            border: none;
-            background: #F2B705;
-            color: var(--ink);
-            font-family: 'Inter', sans-serif;
-            font-size: 1rem;
-            font-weight: 700;
-            cursor: pointer;
-        }
-
-        .search-button:hover { background: #D9A441; }
-
-        .search-input::placeholder { color: #6B7280; }
-            .search-input:focus {
-            outline: 3px solid #F2B705;
-            outline-offset: 1px;
-        }
-
-
-footer {
-    background: var(--header-bg);
-    color: var(--cream);
-    padding: 2rem 1.5rem;
-    margin-top: 2rem;
-}
-.footer-inner {
-    max-width: 960px;
-    margin: 0 auto;
-}
-footer a:hover {
-    color: #F2B705;
-}
-
-.footer-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 1rem;
-    padding-bottom: 1.25rem;
-    border-bottom: 1px solid rgba(247,245,240,0.15);
-}
-.footer-home {
-    font-weight: 600;
-    color: var(--cream);
-    text-decoration: underline;
-    font-size: 1rem;
-}
-.footer-credit {
-    font-size: 0.85rem;
-    color: #B8BCC4;
-    text-align: right;
-}
-.footer-credit a { color: #B8BCC4; }
-.footer-disclaimer {
-    font-size: 0.8rem;
-    color: #B8BCC4;
-    margin-top: 1.25rem;
-    line-height: 1.5;
-}
-
-.loading-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(30, 37, 48, 0.92);
-    z-index: 200;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-}
-.loading-overlay.active { display: flex; }
-
-.hourglass-icon {
-    font-size: 3rem;
-    animation: flip 1.4s ease-in-out infinite;
-}
-@keyframes flip {
-    0%   { transform: rotate(0deg); }
-    45%  { transform: rotate(180deg); }
-    55%  { transform: rotate(180deg); }
-    100% { transform: rotate(360deg); }
-}
-
-.loading-text {
-    color: var(--cream);
-    font-family: 'Inter', sans-serif;
-    font-size: 1.1rem;
-    font-weight: 600;
-    margin-top: 1rem;
-}
-
-
-.suggestions-dropdown {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    background: white;
-    border-radius: 8px;
-    margin-top: 0.5rem;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    overflow: hidden;
-    z-index: 50;
-}
-.suggestion-item {
-    padding: 0.75rem 1rem;
-    cursor: pointer;
-    font-size: 0.95rem;
-    color: var(--ink);
-}
-.suggestion-item:hover { background: #F0EEE8; }
-.suggestion-item:not(:last-child) { border-bottom: 1px solid #E7E2D8; }
-
-
-@media (max-width: 480px) {
-    .footer-top { flex-direction: column; align-items: flex-start; }
-    .footer-credit { text-align: left; }
-}
-        @media (max-width: 480px) {
-            body { font-size: 17px; }
-            h1 { font-size: 1.9rem; }
-            .card-value { font-size: 2.6rem; }
-        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <header>
-        <div class="inner">
-            <div>
-                <h1>{{ greeting }}</h1>
-                <p class="subtitle">Outdoor conditions for {{ location_name }}</p>
-            </div>
-            <div class="timestamp">Last updated {{ last_updated }}</div>
+      <div class="inner">
+        <div>
+          <h1>{{ greeting }}</h1>
+          <p class="subtitle">Outdoor conditions for {{ location_name }}</p>
         </div>
-            <div class="search-row">
+        <div class="timestamp">Last updated {{ last_updated }}</div>
+      </div>
+      <div class="search-row">
         <form class="search-form" action="/" method="get" id="searchForm">
-            <input
-                type="text"
-                name="city"
-                id="cityInput"
-                class="search-input"
-                placeholder="Search a city (e.g. Chicago, IL)"
-                aria-label="Search a city"
-            >
-            <input type="hidden" id="cityLat" name="lat">
-            <input type="hidden" id="cityLon" name="lon">
-            <button type="submit" class="search-button">Search</button>
-            <div class="suggestions-dropdown" id="suggestionsDropdown" style="display: none;"></div>
+          <input
+            type="text"
+            name="city"
+            id="cityInput"
+            class="search-input"
+            placeholder="Search a city (e.g. Chicago, IL)"
+            aria-label="Search a city"
+          />
+          <input type="hidden" id="cityLat" name="lat" />
+          <input type="hidden" id="cityLon" name="lon" />
+          <button type="submit" class="search-button">Search</button>
+          <div
+            class="suggestions-dropdown"
+            id="suggestionsDropdown"
+            style="display: none"
+          ></div>
         </form>
-    </div>
-
+      </div>
     </header>
     <div class="container">
-
-        {% if error_message %}
-            <div class="legend" style="text-align:center; padding: 2.5rem 1.5rem;">
-                <div class="legend-title" style="margin-bottom:0.75rem;">City not found</div>
-                <p style="margin:0; color:#4A5364;">
-                    {{ error_message }} Please check the spelling and try again.
-                </p>
-            </div>
-        {% elif data is none %}
-            <div class="legend" style="text-align:center; padding: 2.5rem 1.5rem;">
-                <div class="legend-title" style="margin-bottom:0.75rem;">Conditions temporarily unavailable</div>
-                <p style="margin:0; color:#4A5364;">
-                    We couldn't reach the weather service just now. This is usually temporary --
-                    please try refreshing in a few minutes.
-                </p>
-            </div>
-
-        {% else %}
-            <div class="legend">
-                <div class="legend-title">What the colors mean</div>
-                <div class="legend-items">
-                    <span class="legend-chip" style="background:#E8F3EC;"><span class="swatch green"></span> Good to go</span>
-                    <span class="legend-chip" style="background:#FDF3D9;"><span class="swatch yellow"></span> Use caution</span>
-                    <span class="legend-chip" style="background:#FBE8E5;"><span class="swatch red"></span> High risk</span>
-                    <span class="legend-chip" style="background:#EBEBEC;"><span class="swatch gray"></span> Reference only / not yet rated</span>
-                </div>
-            </div>
-
-            {% for group_name, keys in groups.items() %}
-                <div class="group-label">{{ group_name }}</div>
-                {% if group_name == "Additional Reference" %}
-                    <div class="legend legend-secondary">
-                        <div class="legend-title">This section uses a broader reference scale</div>
-                        <div class="legend-items">
-                            <span class="legend-chip" style="background:#E8F3EC;"><span class="swatch green"></span> Low</span>
-                            <span class="legend-chip" style="background:#FDF3D9;"><span class="swatch yellow"></span> Moderate</span>
-                            <span class="legend-chip" style="background:#FCE8DC;"><span class="swatch orange"></span> High</span>
-                            <span class="legend-chip" style="background:#FBE8E5;"><span class="swatch red"></span> Very High</span>
-                            <span class="legend-chip" style="background:#F0DADA;"><span class="swatch deepred"></span> Extreme</span>
-                            <span class="legend-chip" style="background:#DCEAF0;"><span class="swatch blue"></span> Dry (humidity only)</span>
-                        </div>
-                    </div>
-                {% endif %}
-                <div class="card-grid">
-                    {% for key in keys %}
-                        {% set info = data[key] %}
-                        {% set rating_class = color_rules.get(key, {}).get(info.rating, "gray") %}
-                        <div class="card">
-                            <div class="banner {{ rating_class }}">
-                                {{ info.rating if info.rating is not none else "Not yet rated" }}
-                            </div>
-                            <div class="card-body">
-                                <div class="card-label">{{ display_names.get(key, key) }}</div>
-                                <div class="card-value">{{ info.value }}</div>
-                                <button class="info-link" onclick='openInfo({{ display_names.get(key, key) | tojson }}, {{ metric_info.get(key, "") | tojson }})'>Tap for details</button>                              </div>
-                        </div>
-                    {% endfor %}
-                </div>
-            {% endfor %}
-        {% endif %}
-
-    </div>
-
-    <div class="modal-backdrop" id="infoModal" onclick="closeInfoOnBackdrop(event)">
-        <div class="modal-box">
-            <div class="modal-title" id="modalTitle"></div>
-            <div id="modalText"></div>
-            <button class="modal-close" onclick="closeInfo()">Close</button>
+      {% if error_message %}
+      <div class="legend" style="text-align: center; padding: 2.5rem 1.5rem">
+        <div class="legend-title" style="margin-bottom: 0.75rem">
+          City not found
         </div>
+        <p style="margin: 0; color: #4a5364">
+          {{ error_message }} Please check the spelling and try again.
+        </p>
+      </div>
+      {% elif data is none %}
+      <div class="legend" style="text-align: center; padding: 2.5rem 1.5rem">
+        <div class="legend-title" style="margin-bottom: 0.75rem">
+          Conditions temporarily unavailable
+        </div>
+        <p style="margin: 0; color: #4a5364">
+          We couldn't reach the weather service just now. This is usually
+          temporary -- please try refreshing in a few minutes.
+        </p>
+      </div>
+
+      {% else %}
+      <div class="legend">
+        <div class="legend-title">What the colors mean</div>
+        <div class="legend-items">
+          <span class="legend-chip" style="background: #e8f3ec"
+            ><span class="swatch green"></span> Good to go</span
+          >
+          <span class="legend-chip" style="background: #fdf3d9"
+            ><span class="swatch yellow"></span> Use caution</span
+          >
+          <span class="legend-chip" style="background: #fbe8e5"
+            ><span class="swatch red"></span> High risk</span
+          >
+          <span class="legend-chip" style="background: #ebebec"
+            ><span class="swatch gray"></span> Reference only / not yet
+            rated</span
+          >
+        </div>
+      </div>
+
+      {% for group_name, keys in groups.items() %}
+      <div class="group-label">{{ group_name }}</div>
+      {% if group_name == "Additional Reference" %}
+      <div class="legend legend-secondary">
+        <div class="legend-title">
+          This section uses a broader reference scale
+        </div>
+        <div class="legend-items">
+          <span class="legend-chip" style="background: #e8f3ec"
+            ><span class="swatch green"></span> Low</span
+          >
+          <span class="legend-chip" style="background: #fdf3d9"
+            ><span class="swatch yellow"></span> Moderate</span
+          >
+          <span class="legend-chip" style="background: #fce8dc"
+            ><span class="swatch orange"></span> High</span
+          >
+          <span class="legend-chip" style="background: #fbe8e5"
+            ><span class="swatch red"></span> Very High</span
+          >
+          <span class="legend-chip" style="background: #f0dada"
+            ><span class="swatch deepred"></span> Extreme</span
+          >
+          <span class="legend-chip" style="background: #dceaf0"
+            ><span class="swatch blue"></span> Dry (humidity only)</span
+          >
+        </div>
+      </div>
+      {% endif %}
+      <div class="card-grid">
+        {% for key in keys %} {% set info = data[key] %} {% set rating_class =
+        color_rules.get(key, {}).get(info.rating, "gray") %}
+        <div class="card">
+          <div class="banner {{ rating_class }}">
+            {{ info.rating if info.rating is not none else "Not yet rated" }}
+          </div>
+          <div class="card-body">
+            <div class="card-label">{{ display_names.get(key, key) }}</div>
+            <div class="card-value">{{ info.value }}</div>
+            <button
+              class="info-link"
+              onclick='openInfo({{ display_names.get(key, key) | tojson }}, {{ metric_info.get(key, "") | tojson }})'
+            >
+              Tap for details
+            </button>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endfor %} {% endif %}
     </div>
 
+    <div
+      class="modal-backdrop"
+      id="infoModal"
+      onclick="closeInfoOnBackdrop(event)"
+    >
+      <div class="modal-box">
+        <div class="modal-title" id="modalTitle"></div>
+        <div id="modalText"></div>
+        <button class="modal-close" onclick="closeInfo()">Close</button>
+      </div>
+    </div>
 
     <footer>
-        <div class="footer-inner">
-            <div class="footer-top">
-                <a href="/" class="footer-home">&larr; Back to home location</a>
-                <div class="footer-credit">
-                    Data from the National Weather Service, EPA AirNow, and Open-Meteo.
-                </div>
-            </div>
-            <p class="footer-disclaimer">
-                This tool provides general guidance based on personal thresholds and is not a substitute
-                for medical advice. If you have questions about a health condition, please consult your doctor.
-            </p>
+      <div class="footer-inner">
+        <div class="footer-top">
+          <a href="/" class="footer-home">&larr; Back to home location</a>
+          <div class="footer-credit">
+            Data from the National Weather Service, EPA AirNow, and Open-Meteo.
+          </div>
         </div>
+        <p class="footer-disclaimer">
+          This tool provides general guidance based on personal thresholds and
+          is not a substitute for medical advice. If you have questions about a
+          health condition, please consult your doctor.
+        </p>
+      </div>
     </footer>
 
-
     <div class="loading-overlay" id="loadingOverlay">
-        <div class="hourglass-icon">⏳</div>
-        <div class="loading-text">Loading data&hellip;</div>
+      <div class="hourglass-icon">⏳</div>
+      <div class="loading-text">Loading data&hellip;</div>
     </div>
 
     <script>
-        let searchTimer = null;
+      let searchTimer = null;
 
-        function openInfo(title, text) {
-            document.getElementById('modalTitle').textContent = title;
-            document.getElementById('modalText').textContent = text;
-            document.getElementById('infoModal').classList.add('open');
-        }
-        function closeInfo() {
-            document.getElementById('infoModal').classList.remove('open');
-        }
-        function closeInfoOnBackdrop(event) {
-            if (event.target.id === 'infoModal') closeInfo();
-        }
+      function openInfo(title, text) {
+        document.getElementById('modalTitle').textContent = title;
+        document.getElementById('modalText').textContent = text;
+        document.getElementById('infoModal').classList.add('open');
+      }
+      function closeInfo() {
+        document.getElementById('infoModal').classList.remove('open');
+      }
+      function closeInfoOnBackdrop(event) {
+        if (event.target.id === 'infoModal') closeInfo();
+      }
 
-        document.getElementById('searchForm').addEventListener('submit', function() {
-        document.getElementById('loadingOverlay').classList.add('active');
+      document
+        .getElementById('searchForm')
+        .addEventListener('submit', function () {
+          document.getElementById('loadingOverlay').classList.add('active');
         });
 
-        document.getElementById('cityInput').addEventListener('input', function() {
-            const typedText = this.value;
-            clearTimeout(searchTimer);
+      document
+        .getElementById('cityInput')
+        .addEventListener('input', function () {
+          const typedText = this.value;
+          clearTimeout(searchTimer);
 
-            if (typedText.length < 3) {
-                document.getElementById('suggestionsDropdown').style.display = 'none';
-                return;
-            }
+          if (typedText.length < 3) {
+            document.getElementById('suggestionsDropdown').style.display =
+              'none';
+            return;
+          }
 
-            searchTimer = setTimeout(() => {
-                fetch('/search-cities?q=' + typedText)
-                    .then(response => response.json())
-                    .then(data => {
-                        renderSuggestions(data.matches);
-                    });
-            }, 300);
+          searchTimer = setTimeout(() => {
+            fetch('/search-cities?q=' + typedText)
+              .then((response) => response.json())
+              .then((data) => {
+                renderSuggestions(data.matches);
+              });
+          }, 300);
         });
 
+      function renderSuggestions(matches) {
+        const dropdown = document.getElementById('suggestionsDropdown');
+        dropdown.innerHTML = '';
 
+        if (matches.length === 0) {
+          dropdown.style.display = 'none';
+          return;
+        }
 
-function renderSuggestions(matches) {
-    const dropdown = document.getElementById('suggestionsDropdown');
-    dropdown.innerHTML = '';
-
-    if (matches.length === 0) {
-        dropdown.style.display = 'none';
-        return;
-    }
-
-    matches.forEach(function(match) {
-        const item = document.createElement('div');
-        item.className = 'suggestion-item';
-        item.textContent = match.name;
-        item.addEventListener('click', function() {
+        matches.forEach(function (match) {
+          const item = document.createElement('div');
+          item.className = 'suggestion-item';
+          item.textContent = match.name;
+          item.addEventListener('click', function () {
             selectCity(match.name, match.latitude, match.longitude);
+          });
+          dropdown.appendChild(item);
         });
-        dropdown.appendChild(item);
-    });
 
-    dropdown.style.display = 'block';
-}
+        dropdown.style.display = 'block';
+      }
 
-function selectCity(cityName, latitude, longitude) {
-    document.getElementById('cityInput').value = cityName;
-    document.getElementById('cityLat').value = latitude;
-    document.getElementById('cityLon').value = longitude;
-    document.getElementById('suggestionsDropdown').style.display = 'none';
-    document.getElementById('loadingOverlay').classList.add('active');
-    document.getElementById('searchForm').submit();
-}
-
-
+      function selectCity(cityName, latitude, longitude) {
+        document.getElementById('cityInput').value = cityName;
+        document.getElementById('cityLat').value = latitude;
+        document.getElementById('cityLon').value = longitude;
+        document.getElementById('suggestionsDropdown').style.display = 'none';
+        document.getElementById('loadingOverlay').classList.add('active');
+        document.getElementById('searchForm').submit();
+      }
     </script>
-</body>
+  </body>
 </html>

@@ -4,30 +4,43 @@ from fastapi import FastAPI, Request, Depends, HTTPException
 from collections import defaultdict
 from fastapi.templating import Jinja2Templates
 from dashboard_data import get_dashboard_data_cached
-from fetch_weather import LATITUDE, LONGITUDE, TIMEZONE, get_coordinates_for_city, get_city_suggestions
+from fetch_weather import (
+    LATITUDE,
+    LONGITUDE,
+    TIMEZONE,
+    get_coordinates_for_city,
+    get_city_suggestions,
+)
 from timezonefinder import TimezoneFinder
+from fastapi.staticfiles import StaticFiles
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
 
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Protects AirNow's shared 500-calls/hour budget from any single visitor (or bot) exhausting it via repeated searches.
 RATE_LIMIT = 15  # searches per hour, per visitor IP
 _request_log = defaultdict(list)
-#** _request_log = indicates this will be used in this file specifically
+# ** _request_log = indicates this will be used in this file specifically
 
 
 SUGGESTIONS_RATE_LIMIT = 60  # suggestion lookups per hour, per visitor IP
 _suggestions_request_log = defaultdict(list)
 
+
 def check_suggestions_rate_limit(request: Request):
     ip = request.client.host
     now = datetime.now()
     one_hour_ago = now - timedelta(hours=1)
-    _suggestions_request_log[ip] = [t for t in _suggestions_request_log[ip] if t > one_hour_ago]
+    _suggestions_request_log[ip] = [
+        t for t in _suggestions_request_log[ip] if t > one_hour_ago
+    ]
 
     if len(_suggestions_request_log[ip]) >= SUGGESTIONS_RATE_LIMIT:
-        raise HTTPException(status_code=429, detail="Too many requests. Please wait a bit.")
+        raise HTTPException(
+            status_code=429, detail="Too many requests. Please wait a bit."
+        )
 
     _suggestions_request_log[ip].append(now)
 
@@ -39,9 +52,13 @@ def check_rate_limit(request: Request):
     _request_log[ip] = [t for t in _request_log[ip] if t > one_hour_ago]
 
     if len(_request_log[ip]) >= RATE_LIMIT:
-        raise HTTPException(status_code=429, detail="You've made a lot of searches. Please wait a bit before searching again.")
+        raise HTTPException(
+            status_code=429,
+            detail="You've made a lot of searches. Please wait a bit before searching again.",
+        )
 
     _request_log[ip].append(now)
+
 
 # Reader-friendly display names that appear on UI
 DISPLAY_NAMES = {
@@ -105,11 +122,14 @@ def get_greeting(timezone_name):
         return "Good evening"
 
 
-
-
-
 @app.get("/")
-def show_dashboard(request: Request, city: str = None, lat: str = None, lon: str = None, _: None = Depends(check_rate_limit)):
+def show_dashboard(
+    request: Request,
+    city: str = None,
+    lat: str = None,
+    lon: str = None,
+    _: None = Depends(check_rate_limit),
+):
     if lat and lon:
         latitude, longitude, location_name = float(lat), float(lon), city
     elif city:
